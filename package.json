@@ -1,0 +1,14 @@
+{
+  "name": "dsh-inline-plugin",
+  "version": "0.1.0",
+  "description": "把 markdown 文章交给 Inline 阅读:生成可导入的存档,读的时候选中就能问。",
+  "type": "module",
+  "main": "index.js",
+  "files": ["index.js", "cordis.patch.yml", "README.md", "LICENSE"],
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "inline", "reading"],
+  "license": "MIT",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
+  }
+}

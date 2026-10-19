@@ -1,0 +1,3 @@
+- insert:
+    - id: inline
+      name: dsh-inline-plugin
