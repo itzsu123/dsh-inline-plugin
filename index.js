@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.2.0'
+const VERSION = '0.2.1'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -199,9 +199,10 @@ export async function apply(ctx, config) {
   ctx.tools.register(defineTool({
     name: 'inline_doc',
     description:
-      '把一篇 markdown 文章写成 Inline 可导入的存档,同时放进剪贴板并打开 Inline。' +
-      'Inline 是单文件 AI 阅读工具:读的时候选中任意句子就能就地提问。' +
-      '适合「先帮我整理一份材料,我再慢慢读」。',
+      '把当前内容整理成一篇可直接阅读的文章,写进 Inline(自动复制到剪贴板并打开)。' +
+      '触发条件(严格):仅当用户消息中出现独立的单词 inline —— 小写,前后是空白、标点或行首行尾。' +
+      '出现时自己总结,不要反问,直接调用一次,不要重复调用。' +
+      '没有出现 inline 这个词时不要调用本工具:普通写作、回答问题、写代码都不算。',
     parameters: {
       title: { type: 'string', required: true, description: '文章标题' },
       markdown: {
