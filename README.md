@@ -2,9 +2,31 @@
 
 npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加了一个插件：**把一段 markdown 写成 Inline 能导入的文章**。
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加了一个插件：**说一句带 `inline` 的话，它就把内容整理成一篇文章，递进 [Inline](https://github.com/itzsu123/Inline) 让你读。**
 
-装好之后，你跟 Agent 说「把这份材料整理成一篇文章」，它就会调用 `inline_doc` 生成一个 `.inline.json`；你在 [Inline](https://github.com/itzsu123/Inline) 里点「导入」选中它，就能在浏览器里读——**选中任意句子就地提问，答案长在你提问的地方**。
+## 它做什么
+
+```
+你    帮我把这篇技术文档整理成文章 inline
+Agent 自己总结 → 调用 inline_doc → 写文件 + 复制到剪贴板 + 打开 Inline
+你    在页面上按一次 Ctrl+V
+```
+
+**文章就进去了。选中任意句子，答案长在你提问的地方。**
+
+## 触发：只有一个关键词
+
+**只有当你的消息里出现独立的单词 `inline`（小写，前后是空格、标点或行首行尾）时才触发。**
+
+```
+✔  帮我把这篇整理成文章 inline
+✔  把上面聊的内容整理一下 inline
+✔  inline 讲讲复利为什么反直觉
+✘  写一篇公众号文章            ← 没有 inline,不触发
+✘  帮我看看这句话什么意思        ← 不触发
+```
+
+**普通的写作、回答问题、写代码都不会触发 —— 这个工具只在你要「读一份东西」的时候工作。**
 
 ## 为什么是"生成存档"
 
@@ -15,7 +37,7 @@ Inline 是单文件工具，正文和问答都存在浏览器 `localStorage` 里
 
 ```
 Agent   收集、整理、写成文章
-插件    转成 Inline 能读的存档
+插件    转成 Inline 能读的存档(并递过去)
 Inline  在浏览器里读,选中就问
 ```
 
@@ -46,37 +68,22 @@ dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 装完重启，日志里会出现：
 
 ```
-[inline-plugin] loaded! 工具 inline_doc 已注册
+[inline-plugin] loaded! 工具 inline_doc 已注册(v0.2.1)
 ```
-
-
-## 用法
-
-装好后直接对 Agent 说：
-
-> 帮我把这篇文章整理好，我要在 Inline 里读：<链接或原文>
-
-Agent 会调用 `inline_doc`，参数是：
-
-| 参数 | 必填 | 说明 |
-|---|---|---|
-| `title` | 是 | 文章标题 |
-| `markdown` | 是 | 正文，支持标题、列表、引用、代码块、粗体、行内代码、链接 |
-| `outPath` | 否 | 保存路径，默认当前目录 `<标题>.inline.json` |
-
-生成后再去 Inline 点「导入」。
 
 ## 为什么只要一次 Ctrl+V
 
-Inline 认得粘贴进来的是它自己的存档(带  / html 字段的 JSON),会直接导入,不再走「导入」选文件那条路。
+Inline 认得粘贴进来的是它自己的存档（带 `v` 和 `html` 字段的 JSON），会直接导入，不再走「导入」选文件那条路。
 
-所以整条链路是:
+所以整条链路是：
 
-`
+```
 Agent 写文章 → 插件转存档 + 复制 + 打开 Inline → 你按 Ctrl+V
-`
+```
 
-剪贴板内容就是那份 JSON,粘贴完就还原成一篇正常的文章。
+剪贴板内容就是那份 JSON，粘贴完就还原成一篇正常的文章。
+
+> 粘贴必须由人来做：浏览器不允许网页自己读剪贴板，除非有用户手势。这是安全模型，不是省事。
 
 ## 支持的 markdown
 
@@ -85,7 +92,7 @@ Agent 写文章 → 插件转存档 + 复制 + 打开 Inline → 你按 Ctrl+V
 ## 小标题       →  h3
 - 列表 / 1. 列表
 > 引用
-```代码块```
+代码块(三个反引号)
 **粗体**  `行内代码`  [链接](url)
 ```
 
@@ -95,6 +102,7 @@ Agent 写文章 → 插件转存档 + 复制 + 打开 Inline → 你按 Ctrl+V
 
 - 生成的是**干净的文章**，不带预置问答——问题应该由你在读的时候自己提。
 - 插件不给 Inline 写入任何数据，也不联网；它只写你指定的那个 JSON 文件。
+- 「已打开 Inline」只是"已请求打开"，浏览器有没有弹出来，插件并不知道。
 
 ## 许可
 
