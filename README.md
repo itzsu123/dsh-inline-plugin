@@ -91,8 +91,6 @@ dsh-inline-plugin
 
 来源选「中国大陆镜像源」更快。
 
-> **如果装完发现没有剪贴板 / `Ctrl+V` 那套行为**，说明 npm 上还是旧版本 ——
-> 用「方式三」从仓库装，那边永远是最新的。
 
 **方式二：命令行**
 
@@ -100,7 +98,7 @@ dsh-inline-plugin
 dsh plugin --profile <你的 profile> add dsh-inline-plugin
 ```
 
-**方式三：直接从仓库装**（npm 上还没新版本时用）
+**方式三：直接从仓库装**（想跟 GitHub 上的最新提交时用）
 
 ```sh
 dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
