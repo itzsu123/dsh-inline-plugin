@@ -4,7 +4,7 @@ npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加了一个插件：**把一段 markdown 写成 Inline 能导入的文章**。
 
-装好之后，你跟 Agent 说「把这份材料整理成一篇文章，我要慢慢读」，它就会调用 `inline_doc` 生成一个 `.inline.json`；你在 [Inline](https://github.com/itzsu123/Inline) 里点「导入」选中它，就能在浏览器里读——**选中任意句子就地提问，答案长在你提问的地方**。
+装好之后，你跟 Agent 说「把这份材料整理成一篇文章」，它就会调用 `inline_doc` 生成一个 `.inline.json`；你在 [Inline](https://github.com/itzsu123/Inline) 里点「导入」选中它，就能在浏览器里读——**选中任意句子就地提问，答案长在你提问的地方**。
 
 ## 为什么是"生成存档"
 
