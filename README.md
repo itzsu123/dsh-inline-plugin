@@ -1,5 +1,7 @@
 # dsh-inline-plugin
 
+npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
+
 给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加一个工具：**把一段 markdown 写成 Inline 能导入的文章**。
 
 装好之后，你跟 Agent 说「把这份材料整理成一篇文章，我要慢慢读」，它就会调用 `inline_doc` 生成一个 `.inline.json`；你在 [Inline](https://github.com/itzsu123/Inline) 里点「导入」选中它，就能在浏览器里读——**选中任意句子就地提问，答案长在你提问的地方**。
@@ -19,15 +21,23 @@ Inline  在浏览器里读,选中就问
 
 ## 安装
 
-**方式一：插件面板**
+**方式一：插件面板(推荐)**
 
-DSH 里打开「添加插件」，粘贴这个仓库地址：
+DSH 里打开「添加插件」，输入包名：
 
 ```
-https://github.com/itzsu123/dsh-inline-plugin
+dsh-inline-plugin
 ```
+
+来源选「中国大陆镜像源」更快。
 
 **方式二：命令行**
+
+```sh
+dsh plugin --profile <你的 profile> add dsh-inline-plugin
+```
+
+**方式三：直接从仓库装**（npm 上还没新版本时用）
 
 ```sh
 dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
@@ -38,6 +48,7 @@ dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 ```
 [inline-plugin] loaded! 工具 inline_doc 已注册
 ```
+
 
 ## 用法
 
