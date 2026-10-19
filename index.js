@@ -1,21 +1,21 @@
 /**
  * dsh-inline-plugin —— 把文章交给 Inline 读
  *
- * 提供一个给模型用的工具 inline_doc:
- *   接收 markdown 正文,转成 Inline 的存档 JSON 写到磁盘,
- *   用户在 Inline 里点「导入」就能读,选中就能问。
+ * 工具 inline_doc:
+ *   1. 把 markdown 转成 Inline 的存档 JSON 写到磁盘
+ *   2. 把这份 JSON 放进系统剪贴板
+ *   3. 打开 Inline
  *
- * 为什么是"生成存档"而不是直接改 Inline:
- *   Inline 是单文件、数据在浏览器 localStorage 里,外面碰不到。
- *   存档 JSON 是它唯一对外的入口,也正好是"把材料递进去"的入口。
+ * 用户在 Inline 里按一次 Ctrl+V,文章就进去了 —— 不用点导入、不用找文件。
+ * Inline 认得粘贴进来的是存档,会直接导入。
  */
 
 export const name = 'inline-plugin'
 
-// 需要工具注册表就绪
 export const inject = ['tools']
 
-const VERSION = '0.1.0'
+const VERSION = '0.2.0'
+const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
 
@@ -108,7 +108,7 @@ function mdToHtml(md) {
   return out.join('')
 }
 
-/* ---------- 写存档 ---------- */
+/* ---------- 写文件 ---------- */
 
 async function writeDoc({ title, markdown, outPath }) {
   const fs = await import('node:fs/promises')
@@ -127,19 +127,68 @@ async function writeDoc({ title, markdown, outPath }) {
     ? path.resolve(outPath.trim())
     : path.resolve(process.cwd(), safe + '.inline.json')
 
+  const text = JSON.stringify(snapshot, null, 2)
   await fs.mkdir(path.dirname(target), { recursive: true })
-  await fs.writeFile(target, JSON.stringify(snapshot, null, 2), 'utf8')
-  return target
+  await fs.writeFile(target, text, 'utf8')
+  return { target, text }
+}
+
+/* ---------- 剪贴板 / 打开浏览器 ---------- */
+
+async function copyToClipboard(text) {
+  const { spawn } = await import('node:child_process')
+  const plat = process.platform
+
+  const candidates = plat === 'win32'
+    ? [['clip', []]]
+    : plat === 'darwin'
+      ? [['pbcopy', []]]
+      : [['wl-copy', []], ['xclip', ['-selection', 'clipboard']]]
+
+  for (const [cmd, args] of candidates) {
+    const ok = await new Promise(resolve => {
+      let child
+      try { child = spawn(cmd, args, { stdio: ['pipe', 'ignore', 'ignore'] }) }
+      catch { resolve(false); return }
+      child.on('error', () => resolve(false))
+      child.on('close', code => resolve(code === 0))
+      try {
+        child.stdin.write(text, 'utf8')
+        child.stdin.end()
+      } catch { resolve(false) }
+    })
+    if (ok) return true
+  }
+  return false
+}
+
+async function openUrl(url) {
+  const { spawn } = await import('node:child_process')
+  const plat = process.platform
+  const [cmd, args] = plat === 'win32'
+    ? ['cmd', ['/c', 'start', '', url]]
+    : plat === 'darwin'
+      ? ['open', [url]]
+      : ['xdg-open', [url]]
+  try {
+    const child = spawn(cmd, args, { stdio: 'ignore', detached: true })
+    child.on('error', () => {})
+    child.unref()
+    return true
+  } catch { return false }
 }
 
 /* ---------- 注册工具 ---------- */
 
-export async function apply(ctx) {
+export async function apply(ctx, config) {
+  const inlineUrl = (config && config.inlineUrl) || DEFAULT_INLINE_URL
+  const autoOpen = !config || config.autoOpen !== false
+
   let defineTool = null
   try {
     ({ defineTool } = await import('@deepseek-ai/dsh-tools'))
   } catch {
-    // 找不到就不注册,别把 profile 弄挂
+    // 宿主里找不到 dsh-tools:不注册,别把 profile 弄挂
   }
 
   if (!defineTool) {
@@ -150,9 +199,9 @@ export async function apply(ctx) {
   ctx.tools.register(defineTool({
     name: 'inline_doc',
     description:
-      '把一篇 markdown 文章写成 Inline 可导入的存档文件。' +
-      'Inline 是单文件 AI 阅读工具:导入后在浏览器里读,选中任意句子就能就地提问。' +
-      '适合「先帮我整理一份材料,我再慢慢读」的场景。',
+      '把一篇 markdown 文章写成 Inline 可导入的存档,同时放进剪贴板并打开 Inline。' +
+      'Inline 是单文件 AI 阅读工具:读的时候选中任意句子就能就地提问。' +
+      '适合「先帮我整理一份材料,我再慢慢读」。',
     parameters: {
       title: { type: 'string', required: true, description: '文章标题' },
       markdown: {
@@ -170,10 +219,20 @@ export async function apply(ctx) {
       render: (_args, value) => [{ type: 'text', text: value }],
     },
     async execute(args) {
-      const file = await writeDoc(args)
-      return '已生成:' + file + '\n在 Inline 里点「导入」选这个文件即可。'
+      const { target, text } = await writeDoc(args)
+
+      const copied = await copyToClipboard(text)
+      let opened = false
+      if (autoOpen) opened = await openUrl(inlineUrl)
+
+      const lines = ['已生成:' + target]
+      if (copied) lines.push('存档已放进剪贴板。')
+      if (opened) lines.push('Inline 已打开 —— 在页面上按一次 Ctrl+V,文章就进去了。')
+      if (!copied && opened) lines.push('剪贴板没写成功,请用「导入」选这个文件。')
+      if (!opened) lines.push('请在 Inline 里用「导入」选这个文件。')
+      return lines.join('\n')
     },
   }))
 
-  console.log('[inline-plugin] loaded! 工具 inline_doc 已注册')
+  console.log('[inline-plugin] loaded! 工具 inline_doc 已注册(v' + VERSION + ')')
 }
