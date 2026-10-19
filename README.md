@@ -71,6 +71,14 @@ dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 [inline-plugin] loaded! 工具 inline_doc 已注册(v0.2.1)
 ```
 
+## 顺手把 key 也带过去
+
+**DSH 里已经配好的 DeepSeek key，不用在 Inline 里再填一遍。**
+
+插件从 `$DSH_HOME/.credentials.yaml` 读 `DEEPSEEK_API_KEY`，塞进剪贴板那份存档的 `api.key`；Inline 导入时接住，存进自己的 `localStorage`。
+
+**只写剪贴板，不写文件** —— 落盘的 `.inline.json` 里没有凭证。
+
 ## 为什么只要一次 Ctrl+V
 
 Inline 认得粘贴进来的是它自己的存档（带 `v` 和 `html` 字段的 JSON），会直接导入，不再走「导入」选文件那条路。

@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.2.1'
+const VERSION = '0.3.0'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -130,7 +130,29 @@ async function writeDoc({ title, markdown, outPath }) {
   const text = JSON.stringify(snapshot, null, 2)
   await fs.mkdir(path.dirname(target), { recursive: true })
   await fs.writeFile(target, text, 'utf8')
-  return { target, text }
+  return { target, text, snapshot }
+}
+
+/* ---------- 从 DSH 的配置里读 key ---------- */
+
+/**
+ * DSH 把 key 存在 $DSH_HOME/.credentials.yaml 的 refs.DEEPSEEK_API_KEY。
+ * 读它、塞进剪贴板那份存档里 —— Inline 导入时顺手存下,用户就不用再填一次。
+ * 只写剪贴板,不写文件:落盘的文件里不该有凭证。
+ */
+async function readDshKey() {
+  const fs = await import('node:fs/promises')
+  const path = await import('node:path')
+  const os = await import('node:os')
+
+  const home = process.env.DSH_HOME || path.join(os.homedir(), '.dsh')
+  const file = path.join(home, '.credentials.yaml')
+  try {
+    const txt = await fs.readFile(file, 'utf8')
+    const m = txt.match(/DEEPSEEK_API_KEY:\s*(.+)/)
+    if (m) return m[1].trim().replace(/^["']|["']$/g, '')
+  } catch {}
+  return ''
 }
 
 /* ---------- 剪贴板 / 打开浏览器 ---------- */
@@ -183,6 +205,7 @@ async function openUrl(url) {
 export async function apply(ctx, config) {
   const inlineUrl = (config && config.inlineUrl) || DEFAULT_INLINE_URL
   const autoOpen = !config || config.autoOpen !== false
+  const syncKey = !config || config.syncKey !== false
 
   let defineTool = null
   try {
@@ -220,14 +243,20 @@ export async function apply(ctx, config) {
       render: (_args, value) => [{ type: 'text', text: value }],
     },
     async execute(args) {
-      const { target, text } = await writeDoc(args)
+      const { target, snapshot } = await writeDoc(args)
 
-      const copied = await copyToClipboard(text)
+      // 剪贴板那份会带上 key(来自 DSH 配置);写盘的那份不带 —— 凭证不落文件
+      const key = syncKey ? await readDshKey() : ''
+      const clipPayload = key
+        ? JSON.stringify({ ...snapshot, api: { key } }, null, 2)
+        : JSON.stringify(snapshot, null, 2)
+
+      const copied = await copyToClipboard(clipPayload)
       let opened = false
       if (autoOpen) opened = await openUrl(inlineUrl)
 
       const lines = ['已生成:' + target]
-      if (copied) lines.push('存档已放进剪贴板。')
+      if (copied) lines.push(key ? '存档已放进剪贴板(含从 DSH 同步的 key)。' : '存档已放进剪贴板。')
       if (opened) lines.push('Inline 已打开 —— 在页面上按一次 Ctrl+V,文章就进去了。')
       if (!copied && opened) lines.push('剪贴板没写成功,请用「导入」选这个文件。')
       if (!opened) lines.push('请在 Inline 里用「导入」选这个文件。')
