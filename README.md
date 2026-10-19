@@ -107,7 +107,7 @@ dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 装完重启，日志里会出现：
 
 ```
-[inline-plugin] loaded! 工具 inline_doc 已注册(v0.3.0)
+[inline-plugin] loaded! 工具 inline_doc 已注册(v0.3.1)
 ```
 
 ## 顺手把 key 也带过去

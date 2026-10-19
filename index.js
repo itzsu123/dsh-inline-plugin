@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.3.0'
+const VERSION = '0.3.1'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -160,6 +160,29 @@ async function readDshKey() {
 async function copyToClipboard(text) {
   const { spawn } = await import('node:child_process')
   const plat = process.platform
+
+  // Windows:不能直接喂 clip.exe —— 它按控制台代码页(GBK)解释字节,
+  // UTF-8 的中文会变成乱码。改成先落一个临时文件,让 PowerShell 按 UTF-8 读再写剪贴板。
+  if (plat === 'win32') {
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+    const os = await import('node:os')
+    const tmp = path.join(os.tmpdir(), 'inline-clip-' + process.pid + '.json')
+    try {
+      await fs.writeFile(tmp, text, 'utf8')
+      const ok = await new Promise(resolve => {
+        const ps = spawn('powershell', [
+          '-NoProfile', '-NonInteractive', '-Command',
+          `Set-Clipboard -Value (Get-Content -Raw -Encoding UTF8 '${tmp}')`,
+        ], { stdio: 'ignore' })
+        ps.on('error', () => resolve(false))
+        ps.on('close', code => resolve(code === 0))
+      })
+      await fs.rm(tmp, { force: true })
+      if (ok) return true
+    } catch {}
+    // 兜底:有些环境没有 powershell,再退回 clip
+  }
 
   const candidates = plat === 'win32'
     ? [['clip', []]]
