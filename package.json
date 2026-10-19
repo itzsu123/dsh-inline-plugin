@@ -1,6 +1,6 @@
 {
   "name": "dsh-inline-plugin",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "给 DeepSeek Harness 加个工具:把 markdown 整理成 Inline 能读的文章,选中就能问。",
   "type": "module",
   "main": "index.js",

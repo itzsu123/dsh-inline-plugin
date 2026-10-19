@@ -2,13 +2,13 @@
 
 npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加了一个插件：**说一句带 `inline` 的话，它就把内容整理成一篇文章，递进 [Inline](https://github.com/itzsu123/Inline) 让你读。**
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 加了一个插件：**说一句带 `/inline` 的话，它就把内容整理成一篇文章，递进 [Inline](https://github.com/itzsu123/Inline) 让你读。**
 
 ## 怎么用
 
-**在发给 Agent 的消息里，带上 `inline` 这个词。**
+**在发给 Agent 的消息里，带上 `/inline` 这个标记。**
 
-> 帮我把这篇技术文档整理成文章 inline
+> 帮我把这篇技术文档整理成文章 /inline
 
 然后就三步：
 
@@ -23,30 +23,25 @@ npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 ### 更多说法
 
 ```
-把上面聊的内容整理一下 inline
-inline 讲讲复利为什么反直觉
-帮我读懂的这篇整理成文章 inline
+把上面聊的内容整理一下 /inline
+讲讲复利为什么反直觉 /inline
+帮我读懂的这篇整理成文章 /inline
 ```
 
-### 写法细则：`inline` 前后各留一个空格
+### 写法细则：`/inline` 要带斜杠
 
-**把它当成一个独立的英文单词写出来 —— 前后各留一个空格,最保险。**
-
-```
-✔  帮我把这篇整理成文章 inline
-✔  帮我把这篇整理成文章 inline 谢谢
-✔  inline 讲讲复利为什么反直觉
-
-✘  帮我把这篇整理成文章inline讲讲     ← 贴着中文,不是独立的词
-✘  我的inlineer插件                ← inline 只是单词的一部分
-```
-
-**中文句子里最容易犯的错,就是把 `inline` 和后面的字粘在一起。**
+**斜杠是关键：只有 `inline`、没有斜杠，不触发。**
 
 ```
-✘  把这篇整理成文章inline讲讲
-✔  把这篇整理成文章 inline 讲讲
+✔  帮我把这篇整理成文章 /inline
+✔  把上面聊的整理一下 /inline
+✔  讲讲复利 /inline
+
+✘  帮我把这篇整理成文章 inline      ← 没斜杠,不触发(可能是在聊这个工具)
+✘  /inline                         ← 不要单独发:行首的斜杠会被当成命令
 ```
+
+**别把 `/inline` 放在消息最开头 —— 桌面端会把行首的 `/xxx` 当作命令处理。放句中或句尾都行。**
 
 ### 不会触发的情况
 
@@ -107,7 +102,7 @@ dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 装完重启，日志里会出现：
 
 ```
-[inline-plugin] loaded! 工具 inline_doc 已注册(v0.3.1)
+[inline-plugin] loaded! 工具 inline_doc 已注册(v0.3.2)
 ```
 
 ## 顺手把 key 也带过去
