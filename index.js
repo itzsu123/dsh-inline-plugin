@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.3.5'
+const VERSION = '0.3.6'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -229,6 +229,23 @@ export async function apply(ctx, config) {
   const inlineUrl = (config && config.inlineUrl) || DEFAULT_INLINE_URL
   const autoOpen = !config || config.autoOpen !== false
   const syncKey = !config || config.syncKey !== false
+
+  // 探针:桌面端的内置运行时看不到日志,让它把"加载到了哪一步"写到临时文件里
+  try {
+    const fs = await import('node:fs/promises')
+    const os = await import('node:os')
+    const path = await import('node:path')
+    await fs.writeFile(
+      path.join(os.tmpdir(), 'inline-plugin-probe.json'),
+      JSON.stringify({
+        version: VERSION,
+        at: new Date().toISOString(),
+        hasCtxTools: !!(ctx && ctx.tools),
+        hasRegister: !!(ctx && ctx.tools && typeof ctx.tools.register === 'function'),
+      }, null, 2),
+      'utf8',
+    )
+  } catch {}
 
   // 不用 defineTool 那个 helper —— 它要 import('@deepseek-ai/dsh-tools'),
   // 而不同宿主(桌面端 / npm 安装)里的 dsh-tools 可能不是同一份,
