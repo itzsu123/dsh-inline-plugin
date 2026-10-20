@@ -1,23 +1,36 @@
 {
-  "name": "dsh-inline-plugin",
-  "version": "0.3.2",
-  "description": "给 DeepSeek Harness 加个工具:把 markdown 整理成 Inline 能读的文章,选中就能问。",
-  "type": "module",
-  "main": "index.js",
-  "files": ["index.js", "cordis.patch.yml", "README.md", "LICENSE"],
-  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "inline", "markdown", "reading"],
-  "license": "MIT",
-  "author": "itzsu123",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/itzsu123/dsh-inline-plugin.git"
-  },
-  "homepage": "https://github.com/itzsu123/dsh-inline-plugin",
-  "bugs": {
-    "url": "https://github.com/itzsu123/dsh-inline-plugin/issues"
-  },
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
-  "peerDependencies": {
-    "@deepseek-ai/dsh-tools": "*"
-  }
+    "name":  "dsh-inline-plugin",
+    "version":  "0.3.3",
+    "description":  "给 DeepSeek Harness 加个工具:把 markdown 整理成 Inline 能读的文章,选中就能问。",
+    "type":  "module",
+    "main":  "index.js",
+    "files":  [
+                  "index.js",
+                  "cordis.patch.yml",
+                  "README.md",
+                  "LICENSE"
+              ],
+    "keywords":  [
+                     "dsh",
+                     "dsh-plugin",
+                     "deepseek-harness",
+                     "inline",
+                     "markdown",
+                     "reading"
+                 ],
+    "license":  "MIT",
+    "author":  "itzsu123",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/itzsu123/dsh-inline-plugin.git"
+                   },
+    "homepage":  "https://github.com/itzsu123/dsh-inline-plugin",
+    "bugs":  {
+                 "url":  "https://github.com/itzsu123/dsh-inline-plugin/issues"
+             },
+    "dsh":  {
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           }
+            }
 }

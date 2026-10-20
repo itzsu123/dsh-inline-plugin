@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.3.2'
+const VERSION = '0.3.3'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -230,19 +230,10 @@ export async function apply(ctx, config) {
   const autoOpen = !config || config.autoOpen !== false
   const syncKey = !config || config.syncKey !== false
 
-  let defineTool = null
-  try {
-    ({ defineTool } = await import('@deepseek-ai/dsh-tools'))
-  } catch {
-    // 宿主里找不到 dsh-tools:不注册,别把 profile 弄挂
-  }
-
-  if (!defineTool) {
-    console.log('[inline-plugin] 已加载,但找不到 @deepseek-ai/dsh-tools,工具未注册')
-    return
-  }
-
-  ctx.tools.register(defineTool({
+  // 不用 defineTool 那个 helper —— 它要 import('@deepseek-ai/dsh-tools'),
+  // 而不同宿主(桌面端 / npm 安装)里的 dsh-tools 可能不是同一份,
+  // 装不上就静默不注册。这里直接给一个普通对象,不依赖任何宿主包。
+  ctx.tools.register({
     name: 'inline_doc',
     description:
       '把当前内容整理成一篇可直接阅读的文章,写进 Inline(自动复制到剪贴板并打开)。' +
@@ -286,7 +277,7 @@ export async function apply(ctx, config) {
       if (!opened) lines.push('请在 Inline 里用「导入」选这个文件。')
       return lines.join('\n')
     },
-  }))
+  })
 
   console.log('[inline-plugin] loaded! 工具 inline_doc 已注册(v' + VERSION + ')')
 }
