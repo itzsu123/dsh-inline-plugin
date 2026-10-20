@@ -110,7 +110,11 @@ dsh plugin --profile <你的 profile> add dsh-inline-plugin
 dsh plugin --profile <你的 profile> add github:itzsu123/dsh-inline-plugin
 ```
 
-装完重启，日志里会出现：
+**装完要重启,而且必须新开一个对话。**
+
+工具集是在会话创建时固定的 —— 旧对话里永远看不到新装工具,这是有意的设计(中途换工具集会破坏上下文一致性),不是故障。
+
+日志里会出现:
 
 ```
 [inline-plugin] loaded! 工具 inline_doc 已注册(v0.3.2)
