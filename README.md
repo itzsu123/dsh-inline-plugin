@@ -39,11 +39,13 @@ npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 ✔  把这篇整理成文章 /inline
 ✔  把这篇整理成文章 /inline，谢谢
 ✔  讲讲复利 /inline
-
+✔  把 https://example.com/some-article 整理成文章 /inline
 ✘  把这篇整理成文章/inline      ← 贴着中文,和网址里的路径分不开
 ✘  /inline                     ← 行首的斜杠会被当成命令
 ✘  把这篇整理成文章 inline       ← 没有斜杠,不触发
 ```
+
+**第四行就是贴链接的写法：链接里带着 `Inline`(比如 `…/Inline/Inline.html`)也不影响 —— 触发的是你写在空格后面的那个 `/inline`。**
 
 **为什么强调前面要有空格：** 网址、路径、代码里出现的 `/inline` 前面一定不是空格,
 所以这一条同时解决了"贴链接时误触发"。
