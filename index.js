@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.3.4'
+const VERSION = '0.3.5'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -243,17 +243,23 @@ export async function apply(ctx, config) {
       '出现时自己总结,不要反问,直接调用一次,不要重复调用。' +
       '只有单词 inline 而没有斜杠时不要调用:那多半是在讨论 Inline 这个工具本身。' +
       '普通写作、回答问题、写代码都不算。',
+    // 直接交给模型 API 的 JSON Schema(不是 defineTool 的糖):
+    // required 必须在对象这一层写成数组,写在字段里会被服务端拒掉。
     parameters: {
-      title: { type: 'string', required: true, description: '文章标题' },
-      markdown: {
-        type: 'string',
-        required: true,
-        description: '正文,markdown 格式。支持标题、列表、引用、代码块、粗体、行内代码、链接。',
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: '文章标题' },
+        markdown: {
+          type: 'string',
+          description: '正文,markdown 格式。支持标题、列表、引用、代码块、粗体、行内代码、链接。',
+        },
+        outPath: {
+          type: 'string',
+          description: '保存路径(可选,默认当前目录下 <标题>.inline.json)',
+        },
       },
-      outPath: {
-        type: 'string',
-        description: '保存路径(可选,默认当前目录下 <标题>.inline.json)',
-      },
+      required: ['title', 'markdown'],
+      additionalProperties: false,
     },
     output: {
       schema: { type: 'string' },
