@@ -14,7 +14,7 @@ export const name = 'inline-plugin'
 
 export const inject = ['tools']
 
-const VERSION = '0.3.3'
+const VERSION = '0.3.4'
 const DEFAULT_INLINE_URL = 'https://itzsu123.github.io/Inline/Inline.html'
 
 /* ---------- markdown → Inline 的正文 html ---------- */
@@ -237,7 +237,9 @@ export async function apply(ctx, config) {
     name: 'inline_doc',
     description:
       '把当前内容整理成一篇可直接阅读的文章,写进 Inline(自动复制到剪贴板并打开)。' +
-      '触发条件(严格):仅当用户消息中出现 /inline 这个标记(斜杠加 inline,夹在句中或句尾都可以)。' +
+      '触发条件(严格):用户消息里出现 /inline 这个标记,而且它必须是独立出现的一处 —— ' +
+      '前面是空格或行首,后面是空格、标点或行尾。' +
+      '网址、文件路径、代码里出现的 /inline(比如 https://example.com/Inline/Inline.html)不算。' +
       '出现时自己总结,不要反问,直接调用一次,不要重复调用。' +
       '只有单词 inline 而没有斜杠时不要调用:那多半是在讨论 Inline 这个工具本身。' +
       '普通写作、回答问题、写代码都不算。',
