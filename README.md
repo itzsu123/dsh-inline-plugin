@@ -20,6 +20,8 @@ npm: [dsh-inline-plugin](https://www.npmjs.com/package/dsh-inline-plugin)
 
 **进去之后:选中任意句子 → 点「问」→ 答案出现在你提问的地方。**
 
+> 它长什么样:[Inline 的 38 秒演示](https://github.com/itzsu123/Inline#readme)
+
 ### 更多说法
 
 ```
